@@ -15,15 +15,22 @@ for values. 3 is a fixed disk, and is the default.
 .EXAMPLE
 Get-DiskInventory -computername SRV02 -drivetype 3
 #>
-
+[CmdletBinding()]
 param (
-    $computername = 'localhost',
-    $diskdrive = 3
+    [Parameter(Mandatory=$True,HelpMessage="Enter a computer name to query")]
+    [alias('host)]')]
+    [String]$computername,
+    [ValidateSet(2,3)]
+    [Int]$drivetype = 3
 )
+Write-Verbose "connecting to $computername"
+Write-Verbose "Looking for drive type $drivetype"
 Get-CimInstance -class Win32_LogicalDisk `
 -computername $computername `
--filter "drivetype=$diskdrive" | Sort-Object -property DeviceID |
-Format-Table -property DeviceID,
-@{label='FreeSpace(MB)';expression={$_.FreeSpace / 1MB -as [int]}},
-@{label='Size(GB)';expression={$_.Size / 1GB -as [int]}},
-@{label='%Free';expression={$_.FreeSpace / $_.Size * 100 -as [int]}}
+-filter "drivetype=$drivetype" | 
+Sort-Object -property DeviceID |
+Select-Object -property DeviceID,
+    @{label='FreeSpace(MB)';expression={$_.FreeSpace / 1MB -as [int]}},
+    @{label='Size(GB)';expression={$_.Size / 1GB -as [int]}},
+    @{label='%Free';expression={$_.FreeSpace / $_.Size * 100 -as [int]}}
+Write-Verbose "finished running command"

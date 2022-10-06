@@ -43,6 +43,7 @@ function get-LastOn {
             [int]$logonEventNum = 4624,
             [int]$logoffEventNum = 4647
         )
+        
         $eventsAndIDs = Get-WinEvent -LogName security -MaxEvents $MaxEvents -ComputerName $ComputerName | 
         Where-Object {$_.id -eq $logonEventNum -or `
         $_.instanceid -eq  $logoffEventNum} | 
